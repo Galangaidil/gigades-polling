@@ -14,21 +14,83 @@
 </div>
 
 <main class="mt-5 mx-auto border rounded p-4" style="max-width: 28rem">
-    <form method="post">
+    <form method="post" id="storePolling">
+        <!-- question -->
         <div class="form-group">
+            <label for="question">Pertanyaan</label>
+
             <textarea class="form-control" id="question" rows="3" placeholder="Ajukan pertanyaan..." maxlength="255"></textarea>
         </div>
-        <div class="form-group">
-            <input type="text" class="form-control" id="pilihan1" placeholder="Pilihan 1">
+
+        <!-- options -->
+        <div class="mt-3" id="optionsContainer">
+            <div class="form-group">
+                <input type="text" class="form-control" id="options1" placeholder="Pilihan 1">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="options2" placeholder="Pilihan 2">
+            </div>
         </div>
-        <div class="form-group">
-            <input type="text" class="form-control" id="pilihan2" placeholder="Pilihan 2">
+
+        <div class="d-flex justify-content-center align-items-center">
+            <button type="button" class="btn btn-outline-primary" id="btnAddNewOption">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"></path>
+                </svg>
+                Tambah
+            </button>
         </div>
-        <div class="form-group">
-            <input type="text" class="form-control" id="pilihan3" placeholder="Pilihan 3">
+
+        <!-- duration -->
+        <div class="form-group mt-3">
+            <p>Durasi</p>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="day">Hari</label>
+                        <select class="form-control" id="day">
+                            <option>0</option>
+                            <option selected>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="hour">Jam</label>
+                        <select class="form-control" id="hour">
+                            <option selected>0</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>23</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="minute">Menit</label>
+                        <select class="form-control" id="minute">
+                            <option selected>0</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>59</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <input type="text" class="form-control" id="pilihan4" placeholder="Pilihan 4">
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary btn-block">
+                Buat poling
+            </button>
         </div>
     </form>
 </main>
@@ -37,5 +99,69 @@
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let optionsCounter = 2; // based on how many options rendered during the page load
+
+    $(document).ready(function (){
+        $("#btnAddNewOption").click(function (){
+            optionsCounter++
+            $("#optionsContainer").append(setOption(optionsCounter))
+            btnAddNewOptionWatcher()
+        })
+
+        $("#storePolling").submit(function (e){
+            e.preventDefault();
+            request()
+        })
+    })
+
+    // create new polling
+    function setOption(id){
+        return `
+        <div class="form-group">
+            <input type="text" class="form-control" id="options${id}" placeholder="Pilihan ${id} (optional)">
+        </div>
+        `;
+    }
+
+    // max options is 4
+    // hide btnAddNewOption if options is 4
+    function btnAddNewOptionWatcher()
+    {
+        if (optionsCounter === 4){
+            $("#btnAddNewOption").hide()
+        }
+    }
+
+    // set the form request
+    function request()
+    {
+        const form = new FormData;
+        form.append('question', $("#question").val())
+        form.append('options[0]', $("#options1").val())
+        form.append('options[1]', $("#options2").val())
+
+        // if options 3 is present, set the key/value
+        const opt3 = document.getElementById("options3")
+        if (opt3){
+            form.append('options[2]', $("#options3").val())
+        }
+
+        // if options 3 is present, set the key/value
+        const opt4 = document.getElementById("options4")
+        if (opt4){
+            form.append('options[3]', $("#options4").val())
+        }
+
+        form.append('day', $("#day").val())
+        form.append('hour', $("#hour").val())
+        form.append('minute', $("#minute").val())
+
+        for (const [key, value] of form) {
+            console.info(`${key}: ${value}`)
+        }
+    }
+</script>
 </body>
 </html>
